@@ -1,0 +1,16 @@
+/*
+ * Styles for ACP control calculator
+ * (Fill in as desired)
+ *
+ * These should not conflict with bootstrap's CSS, but they may 
+ * add more specific styles. 
+ */
+
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100vw;
+}

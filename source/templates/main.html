@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html><head>
+
+<title>Test</title>
+<!-- jquery; CDN load is usually quick because it's likely cached -->
+<script type="text/javascript"
+     src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+</script>
+
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key=XI2uk6YAII1QDspjYO7CAE10aqzHaqtF"></script>
+<script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-geocoding.js?key=XI2uk6YAII1QDspjYO7CAE10aqzHaqtF"></script>
+
+
+
+
+<!-- Our own css file.  Note how we can link directly here and not -->
+<!-- write any routing code in the Flask application. -->
+<link rel="stylesheet" href="/static/main.css" />
+</head>
+<body>
+
+
+<div id="mapid" style="width: 100%; height: 100%;"></div>
+
+<script>
+  var one_time_marker = new L.marker([44.0600, -123.1026]);
+  var popup = L.popup();
+  var places_marker;
+  var description;
+  var geocode = MQ.geocode().on('success', function(e) {
+                description = geocode.describeLocation(e.result.best);
+                load_one_time_marker();
+            });
+  var mymap = L.map('mapid', {
+                layers: MQ.mapLayer(),
+                center: [44.0503, -123.0947],
+                zoom: 13})
+
+  function load_one_time_marker() {
+    mymap.addLayer(one_time_marker)
+    one_time_marker.bindPopup(description).openPopup();
+  }
+
+  function load_map(address) {
+    L.tileLayer(address, {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+      '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    id: 'mapbox.streets'
+  }).addTo(mymap);
+  }
+
+  $.getJSON("/_token", {}, 
+            function(data) {
+              rslt = data.result.maprequest;
+              load_map(rslt);
+            }
+
+    );
+  
+  mymap.addLayer(one_time_marker)
+  one_time_marker.bindPopup("<b>Welcome!</b><br />I am going to show you the karaoke in Eugene.").openPopup();
+
+  $.getJSON("/_places", {},
+            function(data) {
+              len = data.result.len;
+              places = data.result.places;
+              //console.log(len);
+              //console.log(places);
+              for(i = 0; i < len; i++) {
+                the_location = places[i][0];
+                the_description = places[i][1];
+                console.log(the_location);
+                places_marker = new L.marker(the_location);
+                mymap.addLayer(places_marker);
+                places_marker.bindPopup(the_description);
+              }
+            }
+    );
+/*
+  L.circle([51.508, -0.11], 500, {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5
+  }).addTo(mymap).bindPopup("I am a circle.");
+*/
+/*
+  L.polygon([
+    [51.509, -0.08],
+    [51.503, -0.06],
+    [51.51, -0.047]
+  ]).addTo(mymap).bindPopup("I am a polygon.");
+*/
+
+  function onMapClick(e) {
+    mymap.removeLayer(one_time_marker);
+    one_time_marker = new L.marker(e.latlng, {draggable:true});
+    geocode.reverse(e.latlng);
+  }
+
+  mymap.on('click', onMapClick);
+
+
+</script>
+
+
+
+</body></html>
+
