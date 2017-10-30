@@ -19,10 +19,10 @@ env:
 ## Installation
 install: env credentials
 
-credentials: source/credentials.ini
+credentials: Config_data/credentials.ini
 
-source/credentials.ini: 
-	echo "You must manually create credentials.ini"
+Config_data/credentials.ini: 
+	echo "You must manually create credentials.ini into Config_data/"
 
 
 ##
@@ -36,7 +36,7 @@ stop: 	env credentials
 	bash stop.sh
 
 test:	env
-	($(INVENV) cd source; nosetests) 
+	($(INVENV) nosetests) 
 
 
 ##
