@@ -150,7 +150,7 @@ def get_place_of_interest(Data_File):
         Data_File_rule = re.compile(r'^([0-9\.\-]*) ([0-9\.\-]*) (.*)$')
         with open(target_file, 'r') as f:
             line_counter = 0
-            for line in f.readlines():
+            for line in f:
                 match_result = Data_File_rule.match(line)
                 if match_result:
                     the_location = [float(match_result.group(1)), float(match_result.group(2))]
